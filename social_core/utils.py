@@ -96,10 +96,10 @@ def sanitize_redirect(hosts, redirect_to):
     on django.contrib.auth.views.
     """
     # Avoid redirect on evil URLs like ///evil.com
-    logger.warning("HERE IN SANITIZE REDIRECT")
+    print("HERE IN SANITIZE REDIRECT")
     if not redirect_to or not hasattr(redirect_to, 'startswith') or \
        redirect_to.startswith('///'):
-        logger.warning("issue with red")
+        print("issue with red")
         return None
 
     try:
@@ -109,9 +109,9 @@ def sanitize_redirect(hosts, redirect_to):
         pass
     else:
         if netloc in hosts:
-            logger.warning("HERE IN SANITIZE REDIRECT redirecting %s", redirect_to)
+            print("HERE IN SANITIZE REDIRECT redirecting %s", redirect_to)
             return redirect_to
-    logger.warning("Nada")
+    print("Nada")
 
 
 def user_is_authenticated(user):
