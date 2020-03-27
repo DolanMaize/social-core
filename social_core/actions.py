@@ -3,6 +3,7 @@ from six.moves.urllib_parse import quote
 from .utils import sanitize_redirect, user_is_authenticated, \
                    user_is_active, partial_pipeline_data, setting_url
 
+import logging; logger = logging.getLogger(__name__)
 
 def do_auth(backend, redirect_name='next'):
     # Save any defined next value into session
@@ -18,6 +19,7 @@ def do_auth(backend, redirect_name='next'):
     if redirect_name in data:
         # Check and sanitize a user-defined GET/POST next field value
         redirect_uri = data[redirect_name]
+        logger.warning("REDIRECTING %s", backend.setting('SANITIZE_REDIRECTS', True))
         if backend.setting('SANITIZE_REDIRECTS', True):
             allowed_hosts = backend.setting('ALLOWED_REDIRECT_HOSTS', []) + \
                             [backend.strategy.request_host()]
@@ -56,9 +58,12 @@ def do_complete(backend, login, user=None, redirect_name='next',
         return user
 
     if is_authenticated:
+        logger.warning("HERE about to aut")
         if not user:
+            logger.warning("here 2")
             url = setting_url(backend, redirect_value, 'LOGIN_REDIRECT_URL')
         else:
+            logger.warning("here 3")
             url = setting_url(backend, redirect_value,
                               'NEW_ASSOCIATION_REDIRECT_URL',
                               'LOGIN_REDIRECT_URL')
@@ -72,11 +77,13 @@ def do_complete(backend, login, user=None, redirect_name='next',
             backend.strategy.session_set('social_auth_last_login_backend',
                                          social_user.provider)
 
+            logger.warning("here4")
             if is_new:
                 url = setting_url(backend,
                                   'NEW_USER_REDIRECT_URL',
                                   redirect_value,
                                   'LOGIN_REDIRECT_URL')
+                logger.warning("sdfsd")
             else:
                 url = setting_url(backend, redirect_value,
                                   'LOGIN_REDIRECT_URL')
@@ -86,8 +93,10 @@ def do_complete(backend, login, user=None, redirect_name='next',
                 login(backend, user, social_user)
             url = setting_url(backend, 'INACTIVE_USER_URL', 'LOGIN_ERROR_URL',
                               'LOGIN_URL')
+            logger.warning("hsere 7")
     else:
         url = setting_url(backend, 'LOGIN_ERROR_URL', 'LOGIN_URL')
+        logger.warning("hsere 6")
 
     if redirect_value and redirect_value != url:
         redirect_value = quote(redirect_value)
@@ -95,10 +104,12 @@ def do_complete(backend, login, user=None, redirect_name='next',
                '{0}={1}'.format(redirect_name, redirect_value)
 
     if backend.setting('SANITIZE_REDIRECTS', True):
+        logger.warning("hsere 8")
         allowed_hosts = backend.setting('ALLOWED_REDIRECT_HOSTS', []) + \
                         [backend.strategy.request_host()]
         url = sanitize_redirect(allowed_hosts, url) or \
               backend.setting('LOGIN_REDIRECT_URL')
+    logger.warning("Redirecting to %s", url)
     return backend.strategy.redirect(url)
 
 
